@@ -20,18 +20,18 @@ with R software.
 ### 2. Linear models with only fixed effects
 
 * develop, check and fit the following regression models in R:
-  a. One-way analysis of variance (ANOVA)
-  b. Two-way ANOVA without interaction
-  c. Two-way ANOVA with interaction
-  d. Linear regression models
-  e. Multivariable regression models with fixed effects.
+  + One-way analysis of variance (ANOVA)
+  + Two-way ANOVA without interaction
+  + Two-way ANOVA with interaction
+  + Linear regression models
+  + Multivariable regression models with fixed effects.
 
-* develop and identify 'reference' statistical models in R.
+- develop and identify 'reference' statistical models in R.
 
 ### 3. Linear mixed-effects models
 
-* develop, check and fit linear mixed-effects regression models in R.
-* Tumour growth curve analysis is used as pivotal application of linear mixed-effects 
+- develop, check and fit linear mixed-effects regression models in R.
+- Tumour growth curve analysis is used as pivotal application of linear mixed-effects 
 regression models in preclinical cancer research.
 
 
@@ -40,15 +40,15 @@ regression models in preclinical cancer research.
 **This course assumes basic knowledge of statistics and use of R** , which would be obtained from our Introductory Statistics Course and an 
 "Introduction to R for Solving Biological Problems" run at the Genetics department (or equivalent).
 
-  * [Introduction to Solving Biological Problems with R](http://cambiotraining.github.io/r-intro/)
-  * [Introduction to Statistical Analysis](http://bioinformatics-core-shared-training.github.io/IntroductionToStats/)
+- [Introduction to Solving Biological Problems with R](http://cambiotraining.github.io/r-intro/)
+- [Introduction to Statistical Analysis](http://bioinformatics-core-shared-training.github.io/IntroductionToStats/)
 
 
 ## Format
 
-* Presentation with slides
-* Demonstrations
-* Practicals
+- Presentation with slides
+- Demonstrations
+- Practicals
 
 ## Timetable
 
