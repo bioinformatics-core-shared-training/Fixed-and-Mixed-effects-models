@@ -66,13 +66,12 @@ regression models in preclinical cancer research.
 
 ## Materials 
 
-* Effects and regression models
-  * Slides [PDF](ppts/Effects_and_regression_models.pdf)
-  * Tutorial [HTML](markdowns/Effects_and_regression_models.html)
-  * Tutorial [R Markdown](markdowns/Effects_and_regression_models.Rmd)
+- Effects and regression models
+  + Slides [PDF](ppts/Effects_and_regression_models.pdf)
+  + Tutorial [HTML](markdowns/Effects_and_regression_models.html)
+  + Tutorial [R Markdown](markdowns/Effects_and_regression_models.Rmd)
 
 * Analysis of variance (ANOVA)
-
   * Slides [PDF](ppts/anova_slides.pdf)
   * Tutorial [HTML](markdowns/anova.html)
   * Tutorial [R Markdown](markdowns/anova.Rmd)
