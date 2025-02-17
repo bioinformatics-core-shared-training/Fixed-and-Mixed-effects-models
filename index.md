@@ -13,6 +13,7 @@ with R software.
 ### 1. Effects and regression statistical models
 
 * define and classify... 
+
   a) effects
   b) statistical regression models
   c) linear regression models.
@@ -20,6 +21,7 @@ with R software.
 ### 2. Linear models with only fixed effects
 
 * develop, check and fit the following regression models in R:
+
   a) One-way analysis of variance (ANOVA)
   b) Two-way ANOVA without interaction
   c) Two-way ANOVA with interaction
@@ -36,12 +38,16 @@ regression models in preclinical cancer research.
 
 
 ## Prerequisites
-**This course assumes basic knowledge of statistics and use of R** , which would be obtained from our Introductory Statistics Course and an "Introduction to R for Solving Biological Problems" run at the Genetics department (or equivalent).
+
+**This course assumes basic knowledge of statistics and use of R** , which would be obtained from our Introductory Statistics Course and an 
+"Introduction to R for Solving Biological Problems" run at the Genetics department (or equivalent).
+
   * [Introduction to Solving Biological Problems with R](http://cambiotraining.github.io/r-intro/)
   * [Introduction to Statistical Analysis](http://bioinformatics-core-shared-training.github.io/IntroductionToStats/)
 
 
 ## Format
+
 * Presentation with slides
 * Demonstrations
 * Practicals
@@ -56,7 +62,7 @@ regression models in preclinical cancer research.
 ||12.00 am|13.00 am|Multivariable linear regression models (only fixed effects)|
 |28<sup>th</sup> February 2025|9.00 am|10.00 am|Linear mixed-effects models|
 ||10.00 am|13.00 am|Tumour growth curve analysis|
-|||||||||||||
+
 
 
 
