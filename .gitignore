@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 Hands-on-with-fixed-effects-and-mixed-effects-models.Rproj
+.gitignore
+.DS_Store
