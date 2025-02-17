@@ -71,42 +71,42 @@ regression models in preclinical cancer research.
   + Tutorial [HTML](markdowns/Effects_and_regression_models.html)
   + Tutorial [R Markdown](markdowns/Effects_and_regression_models.Rmd)
 
-* Analysis of variance (ANOVA)
-  * Slides [PDF](ppts/anova_slides.pdf)
-  * Tutorial [HTML](markdowns/anova.html)
-  * Tutorial [R Markdown](markdowns/anova.Rmd)
+- Analysis of variance (ANOVA)
+  + Slides [PDF](ppts/anova_slides.pdf)
+  + Tutorial [HTML](markdowns/anova.html)
+  + Tutorial [R Markdown](markdowns/anova.Rmd)
   
-* Simple linear regression
-  * Slides [PDF](ppts/simple_regression.pdf)
-  * Tutorial [HTML](markdowns/simple_regression+.html)
-  * Tutorial [R Markdown](markdowns/simple_regression+.Rmd)
+- Simple linear regression
+  + Slides [PDF](ppts/simple_regression.pdf)
+  + Tutorial [HTML](markdowns/simple_regression+.html)
+  + Tutorial [R Markdown](markdowns/simple_regression+.Rmd)
 
-* Multiple linear regression models (only fixed effects)
-  * Slides [PDF](ppts/multiple_regression.pdf)
-  * Tutorial [HTML](markdowns/multiple_regression+.html)
-  * Tutorial [R Markdown](markdowns/multiple_regression+.Rmd)
+- Multiple linear regression models (only fixed effects)
+  + Slides [PDF](ppts/multiple_regression.pdf)
+  + Tutorial [HTML](markdowns/multiple_regression+.html)
+  + Tutorial [R Markdown](markdowns/multiple_regression+.Rmd)
   
-* Linear mixed-effects models
-  * Slides PDF
+- Linear mixed-effects models
+  + Slides PDF
   
-* Tumour growth curve analysis in R
-  * Tutorial HTML
-  * Tutorial R Markdown
+- Tumour growth curve analysis in R
+  + Tutorial HTML
+  + Tutorial R Markdown
   
 ## Course data
-* Please download this zip file to have all the datasets and R files used in this course
+- Please download this zip file to have all the datasets and R files used in this course
 
 ## System requirements
-* Laptop and installed R.
-* Please, install the following R packages before the course:
-  * GLMsdata
-  * ggplot2
-  * nlme
-  * multcomp
+- Laptop and installed R.
+- Please, install the following R packages before the course:
+  + GLMsdata
+  + ggplot2
+  + nlme
+  + multcomp
   
   
 ## Your feedback
-* After the course, please fill in this feedback form. Thank you.
+- After the course, please fill in this feedback form. Thank you.
 
 
 ## Going further
