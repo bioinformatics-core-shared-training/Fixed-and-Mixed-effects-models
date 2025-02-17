@@ -12,11 +12,10 @@ with R software.
 
 ### 1. Effects and regression statistical models
 
-* define and classify...
-
-  a. effects
-  b. statistical regression models
-  c. linear regression models.
+- define and classify...
+  + effects
+  + statistical regression models
+  + linear regression models.
 
 ### 2. Linear models with only fixed effects
 
