@@ -24,7 +24,7 @@ output:
 ```
 
 
-The `diet` data set is avilable under data/diet.csv. The data set contains information on 76 people who undertook one of three diets (referred to as diet _A_, _B_ and _C_). There is background information such as age, gender, and height. The aim of the study was to see which diet was best for losing weight.
+The `diet` data set is available under data/diet.csv. The data set contains information on 76 people who undertook one of three diets (referred to as diet _A_, _B_ and _C_). There is background information such as age, gender, and height. The aim of the study was to see which diet was best for losing weight.
 
 
 # Section 1: importation and descriptive analysis
@@ -122,19 +122,8 @@ bartlett.test(diet$resid.mean~as.numeric(diet$diet.type))
 ```
 
 
-# Section 4: Mutiple comparisons
 
-Lets
-
-* perform a Tukey HSD test to define which group pair(s) have different means (by means of the function `TukeyHSD()`) 
-* compare the Tukey HSD confidence interval size for the difference of means between the weight losses of *Diet A* and *Diet B* with the one obtained by means of a Student's t-test (function `t.test()` with argument `var.equal` set to `TRUE`)
-
-```{r message = FALSE, warning = FALSE, echo = TRUE} 
-plot(TukeyHSD(diet.fisher))
-t.test(weight.loss~diet.type,data=diet[diet$diet.type!="C",],var.equal = TRUE)
-```
-
-# Section 5: Two-way ANOVA
+# Section 4: Two-way ANOVA
 
 Lets
 
@@ -149,7 +138,7 @@ anova(lm(weight.loss~diet.type*gender,data=diet))
 ```
 
 
-# Section 5: Practicals
+# Section 4: Practicals
 
 Analyse the two following datasets with the suitable analysis:
 
