@@ -138,7 +138,7 @@ anova(lm(weight.loss~diet.type*gender,data=diet))
 ```
 
 
-# Section 4: Practicals
+# Section 5: Practicals
 
 Analyse the two following datasets with the suitable analysis:
 
