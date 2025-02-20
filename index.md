@@ -94,7 +94,7 @@ regression models in preclinical cancer research.
   + Tutorial R Markdown
   
 ## Course data
-- Please download this zip file to have all the datasets and R files used in this course
+- Please Download [this zip file](Course_Data.zip) to have all the datasets and R files used in this course.
 
 ## System requirements
 - Laptop and installed R.
@@ -107,7 +107,7 @@ regression models in preclinical cancer research.
   
   
 ## Your feedback
-- After the course, please fill in this feedback form. Thank you.
+- After the course, please fill the feedback form you receive by email.
 
 
 ## Going further
