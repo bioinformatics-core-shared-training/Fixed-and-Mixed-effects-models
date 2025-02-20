@@ -1,6 +1,6 @@
 ---
 title: "Simple Regression with R" 
-author: "D.-L. Couturier / R. Nicholls / C. Chilamakuri"
+author: "D.-L. Couturier / R. Nicholls / C. Chilamakuri / L. Porcu"
 date: '`r format(Sys.time(), "Last modified: %d %b %Y")`'
 output:
   html_document:
@@ -14,8 +14,6 @@ output:
     fig_height: 6
 ---
 
-
-
 <!--- rmarkdown::render("/Volumes/Files/courses/cruk/LinearModelAndExtensions/git_linear-models-r/simple_regression+.Rmd") --->
 
 ```{r message = FALSE, warning = FALSE, echo = FALSE} 
@@ -27,7 +25,7 @@ output:
 
 # Section 1: Simple Regression
 
-Now let's look at some real data.
+Let's look at some real data.
 
 The in-built dataset `trees` contains data pertaining to the `Volume`, `Girth` and `Height` of 31 felled black cherry trees.
 
@@ -41,19 +39,16 @@ cor.test(trees$Volume,trees$Girth)
 
 It is evident that `Volume` and `Girth` are highly correlated.
 
-The summary for the linear model provides information regarding the quality of the model:
+Model residuals can be readily accessed using the `resid()` function:
 ```{r}
-summary(m1)
-```
-
-Model residuals can be readily accessed using the `residuals()` function:
-```{r}
-hist(residuals(m1),breaks=10,col="light grey")
+hist(resid(m1),breaks=10,col="light grey")
 ```
 
 Diagnostic plots for the model can reveal whether or not modelling assumptions are reasonable. In this case, there is visual evidence to suggest that the assumptions are not satisfied - note in particular the trend observed in the plot of residuals vs fitted values:
 ```{r}
-plot(m1)
+fitted = fitted(m1)
+resid = resid(m1)
+plot(fitted, resid, xlab="Fitted values", ylab="Raw residuals")
 ```
 
 # Section 2: Assessing the quality of linear models
@@ -70,13 +65,14 @@ In this case, it is clear that a linear model is not appropriate for describing 
 ```{r}
 summary(m2)
 ```
-Here we see that the overall p-value is low enough to suggest that the model has significant utility, and both terms (the intercept and the coefficient of `z`) are significantly different from zero. The R^2 value of 0.5422 is high enough to indicate that there is a reasonably strong correlation between `sin(z)` and `z` in this range. 
-
-This information is misleading, as we know that a linear model is inappropriate in this case. Indeed, the linear model summary does not check whether the underlying model assumptions are satisfied. 
+Here we see that the overall p-value is low enough to suggest that the model has significant utility, and both terms (the intercept and the coefficient of `z`) are significantly different from zero.
+Indeed, the linear model summary does not check whether the underlying model assumptions are satisfied. 
 
 By observing strong patterns in the diagnostic plots, we can see that the modelling assumptions are not satisified in this case.
 ```{r}
-plot(m2)
+fitted = fitted(m2)
+resid = resid(m2)
+plot(fitted, resid, xlab="Fitted values", ylab="Raw residuals")
 ```
 
 
@@ -99,7 +95,9 @@ The model summary indicates that the intercept term does not have significant ut
 
 In addition, the plot of residuals versus fitted values indicates potential issues with variance stability:
 ```{r}
-plot(m3)
+fitted = fitted(m3)
+resid = resid(m3)
+plot(fitted, resid, xlab="Fitted values", ylab="Raw residuals")
 ```
 
 In this case, variance stability can be aided by a square-root transformation of the response variable:
@@ -107,11 +105,12 @@ In this case, variance stability can be aided by a square-root transformation of
 plot(sqrt(dist)~speed,data=cars)
 m4 = lm(sqrt(dist)~speed,data=cars)
 abline(m4)
-plot(m4)
+fitted = fitted(m4)
+resid = resid(m4)
+plot(fitted, resid, xlab="Fitted values", ylab="Raw residuals")
 summary(m4)
 ```
 
-The R^2 value is improved over the previous model.
 Note that again that the intercept term is not significant.
 
 We'll now try a log-log transformation, that is applying a log transformation to the predictor and response variables. This represents a power relationship between the two variables.
@@ -119,56 +118,29 @@ We'll now try a log-log transformation, that is applying a log transformation to
 plot(log(dist)~log(speed),data=cars)
 m5 = lm(log(dist)~log(speed),data=cars)
 abline(m5)
-plot(m5)
+fitted = fitted(m5)
+resid = resid(m5)
+plot(fitted, resid, xlab="Fitted values", ylab="Raw residuals")
 summary(m5)
 ```
 
-The R^2 value is improved, and the diagnostic plots don't look too unreasonable. However, again the intercept term does not have significant utility. So we'll now remove it from the model:
+The diagnostic plots don't look too unreasonable. However, again the intercept term does not have significant utility. So we'll now remove it from the model:
 ```{r}
 m6 = lm(log(dist)~0+log(speed),data=cars)
-plot(m6)
+fitted = fitted(m6)
+resid = resid(m6)
+plot(fitted, resid, xlab="Fitted values", ylab="Raw residuals")
 summary(m6)
 ```
 
-This model seems reasonable. However, remember that R^2 values corresponding to models without an intercept aren't meaningful (or at least can't be compared against models with an intercept term).
-
-We can now transform the model back, and display the regression curve on the plot:
+This model seems reasonable. We can now transform the model back, and display the regression curve on the plot:
 ```{r}
 plot(dist~speed,data=cars)
 x = order(cars$speed)
 lines(exp(fitted(m6))[x]~cars$speed[x])
 ```
 
-# Section 4: Relationship between the t-test, ANOVA and linear regression
-
-In the ANOVA session we looked at the `diet` dataset, and performed the t-test and ANOVA. Here's a recap:
-
-```{r message = FALSE, warning = FALSE, echo = TRUE}
-# import
-diet = read.csv("data/diet.csv",row.names=1)
-diet$weight.loss = diet$initial.weight - diet$final.weight 
-diet$diet.type   = factor(diet$diet.type,levels=c("A","B","C"))
-diet$gender      = factor(diet$gender,levels=c("Female","Male"))
-# comparison
-t.test(weight.loss~diet.type,data=diet[diet$diet.type!="B",],var.equal = TRUE)
-summary(aov(weight.loss~diet.type,data=diet[diet$diet.type!="B",]))
-```
-
-Note that the p-values for both the t-test and ANOVA are the same. This is because these tests are equivalent (in the 2-sample case). They both test the same hypothesis.
-
-Also, the F-test statistic is equal to the square of the t-test statistic (-2.8348^2 = 8.036). Again, this is only true for the 2-sample case.
-
-Now let's use a different strategy. Instead of directly testing whether there is a difference between the two groups, let's attempt to create a linear model describing the relationship between `weight.loss` and `diet.type`. Indeed, it is possible to construct a linear model where the independent variable(s) are categorical - they do not have to be continuous or even ordinal!
-
-```{r message = FALSE, warning = FALSE, echo = TRUE}
-summary(lm(weight.loss~diet.type,data=diet[diet$diet.type!="B",]))
-```
-
-You can see that the p-value corresponding to the `diet.type` term is the same as the overall p-value of the linear model, which is also the same as the p-value from the t-test and ANOVA. Note also that the F-test statistic is the same as given by the ANOVA.
-
-So, we are also able to use the linear model to test the hypothesis that there is a difference between the two diet groups, as well as provide a more detailed description of the relationship between `weight.loss` and `diet.type`. 
-
-# Section 5: Practical Exercises
+# Section 4: Practical Exercises
 
 ## Old Faithful
 
@@ -183,10 +155,6 @@ summary(m7)
 ```{r message = FALSE, warning = FALSE, echo = TRUE}
 # intercept = -1.874016
 # coef of waiting = 0.075628
-```
-+ What is the R^2 value?
-```{r message = FALSE, warning = FALSE, echo = TRUE}
-# R^2 = 0.8115
 ```
 + Does the model have significant utility?
 ```{r message = FALSE, warning = FALSE, echo = TRUE}
@@ -211,9 +179,11 @@ plot(eruptions~waiting,data=faithful)
 abline(m7)
 # At a glance, the model seems to describe the overall dependence of eruptions on waiting time reasonably well. However, this is misleading...
 ```
-- Generate the four diagnostic plots corresponding to your model. Contemplate the appropriateness of the model for describing the relationship between eruption duration and waiting time.
+- Generate the diagnostic plot of residuals versus fitted values corresponding to your model. Contemplate the appropriateness of the model for describing the relationship between eruption duration and waiting time.
 ```{r message = FALSE, warning = FALSE, echo = TRUE}
-plot(m7)
+fitted = fitted(m7)
+resid = resid(m7)
+plot(fitted, resid, xlab="Fitted values", ylab="Raw residuals")
 # There is strong systematic behaviour in the plot of residuals versus fitted values. This indicates that the relationship/dependence is different or more complicated than can be described with the simple linear model.
 # Specifically, it should be identified what causes observations to fall into one or other of the two groups. Differences between the two groups should be accounted for when modelling the relationship. It seems that the direct dependence of `eruptions` on `waiting` is not as strong as is indicated by the simple linear model.
 ```
@@ -272,7 +242,11 @@ plot(log(time)~log(conc),data=Indometh)
 assumptions are not violated (too much). Are there any outliers with large influence? What are the parameter estimates? Are both terms significant?
 ```{r message = FALSE, warning = FALSE, echo = TRUE}
 m8 = lm(log(time)~log(conc),data=Indometh)
-plot(m8)
+#plot(m8)
+fitted = fitted(m8)
+resid = resid(m8)
+plot(fitted, resid, xlab="Fitted values", ylab="Raw residuals")
+
 # The diagnostic plots indicate that the residuals aren't perfectly Normally distributed, but the modelling assumptions aren't violated so much as to inhibit construction of a model.
 summary(m8)
 # Intercept = -0.4203
