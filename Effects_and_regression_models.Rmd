@@ -17,7 +17,7 @@ output:
 
 ## (i) *Fish, tanks and food*
 
-An experimenter investigating the effect of different food for a species of fish places the food in tanks containing the fish. The weight increase of the fish is the response (y<sub>ijy</sub>), where i,j and k are indices identifying the fish, the tank and the type of food, respectively.
+An experimenter investigating the effect of different food for a species of fish places the food in tanks containing the fish. The weight increase of the fish is the response (y<sub>ijk</sub>), where i,j and k are indices identifying the type of food, the tank and the fish, respectively.
 
 * Please, identify fixed and random effects. <br/>
 * Please, identify predictable and unpredictable (i.e. error) random effects. <br/> 
@@ -28,13 +28,18 @@ An experimenter investigating the effect of different food for a species of fish
 <br>
 
 ## (ii) *Anticancer activity of carboplatin combined with nivolumab*
-In a preclinical *in vivo* experiment the efficacy of carboplatin combined with nivolumab was tested. A mouse model for NSCLC was used. The statistical design reported in the flow-chart *Statistical design* has the following characteristics: <br/>
+In a preclinical *in vivo* experiment the efficacy of carboplatin combined with nivolumab was tested. A mouse model for NSCLC was used. The statistical design is reported in the following flow-chart and has the following characteristics: 
+
+![](../ppts/Statistical_design.jpeg)
+
+
+<br/>
 1. The experimental groups were: <br/>
 &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; n.1: Vehicle <br/>
 &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; n.2: Carboplatin <br/> 
 &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; n.3: Nivolumab <br/> 
 &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; n.4: Carboplatin plus nivolumab <br/>
-2. A blocked randomisation by gender and baseline tumour weight was used to ensure balanced groups and high probability to detect an antineoplastic synergy between chemotherapic (i.e. carboplatin) and immunotherapic (i.e. nivolumab) compounds. Two batches of animals were used. The first batch was randomised in April, the second batch was randomised in May. <br/>
+2. A blocked randomisation by gender and baseline tumour volume was used to ensure balanced groups and high probability to detect an antineoplastic synergy between chemotherapic (i.e. carboplatin) and immunotherapic (i.e. nivolumab) compounds. Two batches of animals were used. The first batch was randomised in April, the second batch was randomised in May. <br/>
 3. The primary response, tumour volume (mm<sup>3</sup>), was assessed at baseline and daily in the subsequent two weeks. At baseline and in the first week it was assessed by the operator Mark, in the second week by the operator Peter. <br/>
 
 * Please, identify fixed effects. <br/>
@@ -51,7 +56,7 @@ The relationship between response FEV (lung capacity) and predictors age (x<sub>
 |$\mu$|=|$\beta$<sub>0</sub>|+|$\beta$<sub>1</sub>x<sub>1</sub>|+|$\beta$<sub>2</sub>x<sub>2</sub>|+|$\beta$<sub>3</sub>x<sub>3</sub>|+|$\beta$<sub>4</sub>x<sub>4</sub>|+|$\beta$<sub>5</sub>x<sub>5</sub>|
 |1/$\mu$|=|0|+|e<sup>$\beta$<sub>1</sub>x<sub>1</sub></sup>|+|$\beta$<sub>2</sub>x<sub>2</sub><sup>(1/3)</sup>|+|0|+|$\beta$<sub>4</sub>x<sub>4</sub>|+|0|
 |log<sub>e</sub>$\mu$|=|$\beta$<sub>0</sub>|+|0|+|$\beta$<sub>2</sub>x<sub>2</sub>|+|$\beta$<sub>3</sub>x<sub>3</sub><sup>2</sup>|+|$\beta$<sub>4</sub>x<sub>4</sub>|+|$\beta$<sub>5</sub>x<sup>5</sup>|
-|$\mu$|=|$\beta$<sub>0</sub>|+|$\beta$x<sub>1</sub><sup>(1/2)</sup>|+|0|+|0|+|0|+|$\beta$<sub>5</sub>x<sub>5</sub>|
+|$\mu$|=|$\beta$<sub>0</sub>|+|$\beta_1$x<sub>1</sub><sup>(1/2)</sup>|+|0|+|0|+|0|+|$\beta$<sub>5</sub>x<sub>5</sub>|
 |||||||||||||
 
 * Please, for each systematic component:

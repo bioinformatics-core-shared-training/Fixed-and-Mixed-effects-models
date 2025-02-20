@@ -10,7 +10,7 @@ with R software.
 
 ## Course overview
 
-### 1. Effects and regression statistical models
+### 1. Effects and statistical regression models
 
 - define and classify...
   + effects
@@ -31,7 +31,7 @@ with R software.
 ### 3. Linear mixed-effects models
 
 - develop, check and fit linear mixed-effects regression models in R.
-- Tumour growth curve analysis is used as pivotal application of linear mixed-effects 
+- tumour growth curve analysis is used as pivotal application of linear mixed-effects 
 regression models in preclinical cancer research.
 
 
@@ -68,23 +68,23 @@ regression models in preclinical cancer research.
 
 - Effects and regression models
   + Slides [PDF](ppts/Effects_and_regression_models.pdf)
-  + Tutorial [HTML](markdowns/Effects_and_regression_models.html)
-  + Tutorial [R Markdown](markdowns/Effects_and_regression_models.Rmd)
+  + Tutorial [HTML](Effects_and_regression_models.html)
+  + Tutorial [R Markdown](Effects_and_regression_models.Rmd)
 
 - Analysis of variance (ANOVA)
   + Slides [PDF](ppts/anova_slides.pdf)
-  + Tutorial [HTML](markdowns/anova.html)
-  + Tutorial [R Markdown](markdowns/anova.Rmd)
+  + Tutorial [HTML](anova.html)
+  + Tutorial [R Markdown](anova.Rmd)
   
 - Simple linear regression
   + Slides [PDF](ppts/simple_regression.pdf)
-  + Tutorial [HTML](markdowns/simple_regression+.html)
-  + Tutorial [R Markdown](markdowns/simple_regression+.Rmd)
+  + Tutorial [HTML](simple_regression+.html)
+  + Tutorial [R Markdown](simple_regression+.Rmd)
 
 - Multiple linear regression models (only fixed effects)
   + Slides [PDF](ppts/multiple_regression.pdf)
-  + Tutorial [HTML](markdowns/multiple_regression+.html)
-  + Tutorial [R Markdown](markdowns/multiple_regression+.Rmd)
+  + Tutorial [HTML](multiple_regression+.html)
+  + Tutorial [R Markdown](multiple_regression+.Rmd)
   
 - Linear mixed-effects models
   + Slides PDF
@@ -99,10 +99,11 @@ regression models in preclinical cancer research.
 ## System requirements
 - Laptop and installed R.
 - Please, install the following R packages before the course:
-  + GLMsdata
+  + GLMsData
   + ggplot2
   + nlme
   + multcomp
+  + lmtest
   
   
 ## Your feedback
