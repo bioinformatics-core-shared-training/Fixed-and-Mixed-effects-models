@@ -1,6 +1,3 @@
-
-
-
 ---
 title: "Simple Regression with R" 
 author: "D.-L. Couturier / R. Nicholls / C. Chilamakuri"
@@ -27,55 +24,8 @@ output:
 
 ```
 
-# Section 1: Correlation Coefficients
 
-We'll start by generating some synthetic data to investigate correlation coefficients.
-
-Generate 50 random numbers in the range [0,50]:
-```{r}
-x = runif(50,0,50)
-```
-
-Now let's generate some y-values that are linearly correlated with the x-values with gradient=1, applying a random Normal offset (with sd=5):
-```{r}
-y = x + rnorm(50,0,5)
-```
-
-Plotting y against x, you'll observe a positive linear relationship:
-```{r}
-plot(y~x)
-```
-
-This strong linear relationship is reflected in the correlation coefficient and in the coefficient of determination (R^2):
-```{r}
-pearson_cor_coef = cor(x,y)
-list("cor"=pearson_cor_coef,"R^2"=pearson_cor_coef^2)
-```
-
-If the data exhibit a negative linear correlation then the correlation coefficient will become strong and negative, whilst the R^2 value will remain strong and positive:
-```{r}
-y = -x + rnorm(50,0,5)
-plot(y~x)
-pearson_cor_coef = cor(x,y)
-list("cor"=pearson_cor_coef,"R^2"=pearson_cor_coef^2)
-```
-
-If data are uncorrelated then both the correlation coefficient and R^2 values will be close to zero:
-```{r}
-y = rnorm(50,0,5)
-plot(y~x)
-pearson_cor_coef = cor(x,y)
-list("cor"=pearson_cor_coef,"R^2"=pearson_cor_coef^2)
-```
-
-The significance of a correlation can be tested using `cor.test()`, which also provides a 95% confidence interval on the correlation:
-```{r}
-cor.test(x,y)
-```
-
-In this case, the value 0 is contained within the confidence interval, indivating that there is insufficient evidence to reject the null hypothesis that the true correlation is equal to zero.
-
-# Section 2: Simple Regression
+# Section 1: Simple Regression
 
 Now let's look at some real data.
 
@@ -106,7 +56,7 @@ Diagnostic plots for the model can reveal whether or not modelling assumptions a
 plot(m1)
 ```
 
-# Section 3: Assessing the quality of linear models
+# Section 2: Assessing the quality of linear models
 
 Let's see what happens if we try to describe a non-linear relationship using a linear model. Consider the sine function in the range [0,1.5*pi):
 ```{r}
@@ -130,7 +80,7 @@ plot(m2)
 ```
 
 
-# Section 4: Modelling Non-Linear Relationships
+# Section 3: Modelling Non-Linear Relationships
 
 It is sometimes possible to use linear models to describe non-linear relationships (which is perhaps counterintuitive!). This can be achieved by applying transformations to the variable(s) in order to linearise the relationship, whilst ensuring that modelling assumptions are satisfied.
 
@@ -189,7 +139,7 @@ x = order(cars$speed)
 lines(exp(fitted(m6))[x]~cars$speed[x])
 ```
 
-# Section 5: Relationship between the t-test, ANOVA and linear regression
+# Section 4: Relationship between the t-test, ANOVA and linear regression
 
 In the ANOVA session we looked at the `diet` dataset, and performed the t-test and ANOVA. Here's a recap:
 
@@ -218,7 +168,7 @@ You can see that the p-value corresponding to the `diet.type` term is the same a
 
 So, we are also able to use the linear model to test the hypothesis that there is a difference between the two diet groups, as well as provide a more detailed description of the relationship between `weight.loss` and `diet.type`. 
 
-# Section 6: Practical Exercises
+# Section 5: Practical Exercises
 
 ## Old Faithful
 
