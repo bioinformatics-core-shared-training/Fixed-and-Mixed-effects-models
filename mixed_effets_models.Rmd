@@ -1,0 +1,554 @@
+---
+title: "Linear mixed-effects models with R: tumour growth curve analysis" 
+author: "L. Porcu / C. Chilamakuri"
+date: '`r format(Sys.time(), "Last modified: %d %b %Y")`'
+output:
+  html_document:
+    theme: united 
+    highlight: tango
+    code_folding: show    
+    toc: true           
+    toc_depth: 2       
+    toc_float: true     
+    fig_width: 8
+    fig_height: 6
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, eval=TRUE)
+```
+
+* Statistical analysis of linear mixed-effects models is performed using the *nlme* package in R. 
+* The reference book is "Pinheiro JC, Bates DM (2000). Mixed-Effects Models in S and S-PLUS. Springer, New York". 
+* The *ggplot2* package in R is used to produce plots. 
+* Please, install and load the packages.
+
+```{r} 
+# install.packages("nlme")  # Install the nlme package
+library(nlme)               # Load the nlme package
+library(tidyverse)            # Load the ggplot2 package
+```
+
+
+# Section 1: A simple example of random effects
+
+## Objective
+
+* The dataset `TumVol` contains data from an experiment validating a new PDX model of non-small-cell lung cancer. Tumour cells were inoculated into six C57BL/6J mice. 
+* Tumour volume (mm<sup>3</sup>) was measured after 2 weeks using a digital caliper.
+* Please, load and display the `TumVol` dataset as follows:
+
+```{r} 
+TumVol = read.csv("data/TumVol.csv") # Load the TumVol dataset
+TumVol                               # Display the dataset
+```
+
+* Tumour volume measurements were performed by the same operator. 
+* They were repeated 3 times in the same day with 45 min intervals. 
+
+* The quantities the researchers were interested in estimating from this experiment were: 
+  1. the average tumour volume for a “typical” PDX model (*expected tumour volume*)
+  2. the variation in average tumour volume among PDXs (the *between-mouse variability*) 
+  3. the variation in the measured tumour volume for a single PDX (the *within-mouse variability*). 
+
+Let's display the data and identify the parameters to estimate:
+
+
+```{r}
+TumVol %>% 
+  mutate(IDmouse = factor(IDmouse)) %>%
+  ggplot(aes(x = TVolume, y = IDmouse, colour = IDmouse)) +
+  geom_point() 
+```
+
+* We can see that there is considerable variability in the mean tumour volume for different mice.
+* Overall the *between-mouse variability* is much greater than the *within-mouse variability*.
+
+## Statistical analysis
+
+* Data like the `TumVol` example can be analyzed either with a fixed-effects model or with a random-effects model. 
+* The distinction between the two regression models is according to whether we wish to make inferences about those *particular mice* that were used in the experiment or to make inferences about *the population* from which these mice were drawn. 
+* Assume the simple model: y<sub>ij</sub> = $\beta$ + $\epsilon$<sub>ij</sub>, i=1,..,6; j=1,2,3. The errors $\epsilon$<sub>ij</sub> are assumed to be independent, identically and normally distributed. 
+
+Let's fit the single-mean model with R:
+
+```{r} 
+fitModel1 <- lm(TVolume ~ 1, data=TumVol)
+summary(fitModel1)
+```
+
+* We can see that residual error is very large. The mean tumour volume is statistically different from zero. 
+
+Let's ask ourself if the statistical model is a good model looking at the residuals behavior.
+
+
+
+```{r}
+TumVol$resid <- resid(fitModel1)
+TumVol %>% 
+  mutate(IDmouse = factor(IDmouse)) %>%
+  ggplot(aes(x = resid, y = IDmouse, colour = IDmouse)) +
+  geom_point() +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red")
+```
+
+
+* The statistical regression model assumes that errors are independent and identically distributed.
+* But errors of a single mouse are clearly correlated. 
+* The previous assumption is strongly contradicted by real data. 
+* Ignoring the classification factor (i.e. *mice*) when modeling grouped data leads to an inflated estimate of the *within-mouse variability*.
+
+### Fixed-effects models
+
+To develop a better model, let's introduce **IDmouse** as fixed-effects predictor:
+
+```{r} 
+TumVol$IDmouse <- factor(TumVol$IDmouse, ordered = FALSE, levels = c(1,2,3,4,5,6)) # IDmouse as categorical variable
+fitModel2 <- lm(TVolume ~ IDmouse, data=TumVol)
+summary(fitModel2)
+```
+Residual error is strongly reduced respect to **fitModel1**.
+
+Please, check the residuals behavior:
+
+
+```{r}
+TumVol$resid <- resid(fitModel2)
+TumVol %>% 
+  mutate(IDmouse = factor(IDmouse)) %>%
+  ggplot(aes(x = resid, y = IDmouse, colour = IDmouse)) +
+  geom_point() +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red")
+
+```
+
+* Test if variances are equal among mice groups using `bartlett.test` test
+
+```{r}
+bartlett.test(resid ~ IDmouse, data = TumVol) # Bartlett’s homoscedasticity test
+```
+
+* Histogram of residuals
+
+```{r}
+# Overall
+hist(TumVol$resid)
+```
+
+* Check normality of residuals using Q-Q plot
+
+```{r}
+qqnorm(TumVol$resid); qqline(TumVol$resid, col="red") # Q-Q plot 
+```
+
+* Check normality of residuals using Shapiro-Wilk normality test
+
+```{r}
+shapiro.test(TumVol$resid) # Shapiro-Wilk normality test
+```
+
+* **fitModel2** is definitively better than **fitModel1**, as confirmed by the ANOVA test:
+```{r} 
+anova(fitModel1, fitModel2) # ANOVA test
+```
+
+* Even though the fixed-effects model accounts for the mouse effects, it does not provide a useful representation of the mice data for the following reasons:
+  1. The number of parameters increases linearly with the number of mice. 
+  2. It only models the specific sample of mice used in the PDX experiment, while the main interest is in the population of mice from which the sample was drawn. 
+  3. This model does not provide an estimate of the *between-mouse variability*, which is one of the central quantities of interest in the PDX experiment. 
+
+### Random-effects models
+
+* To solve the previous limits, we use a random-effects model with mice as random effects.
+
+```{r} 
+fitModel3 <- lme(TVolume ~ 1, random = ~1|IDmouse, data=TumVol)
+summary(fitModel3)
+```
+
+* This model answers our 3 questions:
+  1) the *expected tumour volume* = 578 
+  2) the *between-mouse variability* = 246.6452 
+  3) the *within-mouse variability* = 8.181959 
+
+* What about the tumour volume of each mouse? 
+  * In **fitModel2** mean tumour volume of each mouse is a parameter. 
+  * In **fitModel3** mean tumour volume of each mouse is not a parameter. Their values <u>are predicted</u> (*guessed*) by the fitted model. 
+
+Please, refer to the following R commands:
+  
+```{r} 
+rndEffects <- ranef(fitModel3)
+rndEffects <- rndEffects$'(Intercept)'
+rndEffects
+```
+
+* Could **fitModel3** reasonably generate our data?
+
+Please, check the distribution of residuals and random effects.
+
+```{r} 
+TumVol$resid <- resid(fitModel3)
+qqnorm(TumVol$resid); qqline(TumVol$resid, col="red") # Q-Q plot 
+shapiro.test(TumVol$resid) # Shapiro-Wilk normality test
+bartlett.test(resid ~ IDmouse, data = TumVol) # Bartlett’s homoscedasticity test
+
+qqnorm(rndEffects); qqline(rndEffects, col="red") # Q-Q plot 
+shapiro.test(rndEffects) # Shapiro-Wilk normality test
+summary(rndEffects) # Random effects mean around zero
+```
+
+
+* In conclusion, **fitModel3** is a reasonable model and answer our questions. It could be used as "reference" regression model of the PDX experiment.
+
+# Section 2: Tumour growth curve analysis
+
+## Objective
+
+* The dataset `TGCdSet` contains data from an experiment performed in March 2024. 
+* A preclinical murine model of non-small-cell lung cancer was used.
+
+Please, load and display the first lines of the `TGCdSet` dataset.
+
+```{r} 
+TGCdSet = read.csv("data/TGCdSet.csv") # Load the TGCdSet dataset
+head(TGCdSet)               # Display the first lines of the dataset
+# Data management
+TGCdSet$IDmouse <- factor(TGCdSet$IDmouse, ordered = FALSE) # Categorical variable
+TGCdSet$ExpGroup <- factor(TGCdSet$ExpGroup, ordered = FALSE, levels = c("Vehicle", "Carboplatin","Gefitinib","Carboplatin + Gefitinib")) # Categorical variable
+```
+
+* On 18<sup>th</sup> March 2024, thirty-five mice were randomised to four experimental groups: <br/>
+  1. Vehicle 
+  2. Carboplatin 
+  3. Gefitinib 
+  4. Carboplatin + Gefitinib 
+  
+* The primary outcome was tumour volume (mm<sup>3</sup>). 
+* It was measured every 2-4 days using a digital caliper. 
+* The primary objective was to statistically demonstrate (<u>hypothesis testing</u>) the *synergistic effect* of gefitinib combined with carboplatin. 
+* As secondary objective researchers were interested to <u>estimate</u> *the mean tumour volume and its 95% CI* in the 'vehicle' group after two weeks (**time** = 14).
+
+## Statistical analysis
+
+### Exploratory analysis
+
+* We examine the data to ...
+  a) detect imbalance of baseline tumour volume between experimental groups
+  b) to understand the shape of tumor growth curves.
+
+* Imbalance between experimental groups must be considered when interpreting results. 
+* They should be avoided because it is impossible to disentangle treatment effect from the effect due to different baseline tumour volumes.
+* Randomisation techniques such as blocking should be applied to solve this methodological problem.
+
+```{r message = FALSE, warning = FALSE, echo = TRUE, eval=TRUE} 
+### Graphical checks
+dBaseSet = subset(TGCdSet, time == 0)
+
+ggplot(dBaseSet, aes(x=ExpGroup, y=TVolume)) + 
+  geom_jitter(position=position_jitter(0.1)) +
+  stat_summary(aes(x=ExpGroup, y=TVolume), fun = mean, colour="red", geom="point")
+
+### Formal tools: hypothesis testing
+kruskal.test(TVolume ~ ExpGroup, data = dBaseSet) # Kruskal-Wallis Rank Sum test
+anovaTest = aov(TVolume ~ ExpGroup, data = dBaseSet) # ANOVA test
+summary(anovaTest)
+```
+* No systematic difference between baseline values of experimental groups was detected.
+
+* Plots are primary tools to begin the modeling steps, specifically to 'guess' a reasonable regression model.
+
+```{r message = FALSE, warning = FALSE, echo = TRUE, eval=TRUE}
+p <- ggplot(data=TGCdSet, aes(x=time, y=TVolume, group=IDmouse)) +
+  geom_line( linetype = "solid",color="black") + 
+  stat_summary( fun = mean, colour="red", geom="line", group=1)
+
+p + 
+  facet_grid(. ~ ExpGroup)
+```
+
+* Tumour growth curves follows an exponential growth. To apply linear models, we work on natural log scale.
+
+```{r}
+TGCdSet$TVlog = log(TGCdSet$TVolume)
+
+p <- ggplot(data=TGCdSet, aes(x=time, y=TVlog, group=IDmouse)) +
+  geom_line( linetype = "solid",color="black") + 
+  stat_summary( fun = mean, colour="red", geom="line", group=1)
+p + 
+  facet_grid(. ~ ExpGroup)
+```
+
+* *Comment:* 
+  * the plot suggests that growth trajectories on the natural log scale appear mostly straight, with slope's dependence on experimental group. 
+  * Baseline tumor volumes are clearly different between mice. Moreover the 'Carboplatin + gefitinib group has a sample mean (red line) very different from the other three groups. 
+
+### Model development
+
+Based on the previous exploratory analysis a reasonable starting model is the following:
+
+```{r}
+fitModel0 <- lme(TVlog ~ time + time:ExpGroup, 
+                 random= ~1|IDmouse,  
+                 method="REML", data = TGCdSet)
+```
+
+* Based on residuals behavior, we could be satisfied by the starting model or we could be interested to improve it.
+* For instance, the exploratory analysis suggested that a common intercept could be used for all the experimental groups.
+* Moreover, the growth trajectories are linear on natural log scale but the slope seems to be different between mice.
+* Let's formally check these two modification of the starting model using likelihood ratio test (LRT) and information criteria (i.e. AIC and BIC).
+
+```{r}
+### Checking different slope by mouse
+fitModel1 <- lme(TVlog ~ time + time:ExpGroup, 
+                         random= ~1+time|IDmouse,  
+                         method="REML", data = TGCdSet)
+anova(fitModel1,fitModel0)
+### Checking different intercept by experimental group
+fitModel0ml <- lme(TVlog ~ time + time:ExpGroup, 
+                           random= ~1+time|IDmouse,  
+                           method="ML", data = TGCdSet)
+fitModel1ml <- lme(TVlog ~ ExpGroup + time + time:ExpGroup, 
+                           random= ~1+time|IDmouse,  
+                           method="ML", data = TGCdSet)
+anova(fitModel1ml,fitModel0ml)
+```
+
+* Lower values are better for both AIC and BIC. 
+* AIC favors more complex models, while BIC includes a penalty for the number of parameters estimated so tends to favor more simple models with fewer parameters.
+* LRT requires that the compared models are nested. A nested model is simply one that contains a subset of the predictor variables in the overall regression model.
+* A likelihood ratio test uses the following null and alternative hypotheses: 
+  * H<sub>Null</sub>: The full model and the nested model fit the data equally well. Thus, you should use the nested model.
+  * H<sub>Alternative</sub>: The full model fits the data significantly better than the nested model. Thus, you should use the full model.
+
+* If the p-value of the test is below a certain significance level (e.g. 0.05), then we can reject the null hypothesis and conclude that the full model offers a significantly better fit. 
+
+
+* *Important note:*  because the nested models **fitModel0ml** and **fitModel1ml** differ in the specification of their fixed-effects, <u>a LRT can be defined for maximum likelihood estimator only</u>. 
+
+* *Comment:* the LRT, and the AIC and BIC criteria, all strongly favor the more general model with a different slope by mouse.
+
+* Let's formally check if a quadratic term for the time predictor could improve the updated model.
+
+```{r}
+### Checking a quadratic term for the time variable, overall and by experimental group
+TGCdSet$time2 = (TGCdSet$time)^2
+fitModel0ml <- lme(TVlog ~ time + time:ExpGroup, 
+                           random= ~1+time|IDmouse,  
+                           method="ML", data = TGCdSet)
+fitModel2ml <- lme(TVlog ~ time + time2 + time:ExpGroup, 
+                           random= ~1+time|IDmouse,  
+                           method="ML", data = TGCdSet)
+fitModel3ml <- lme(TVlog ~ time + time2 + (time+time2):ExpGroup, 
+                           random= ~1+time|IDmouse,  
+                           method="ML", data = TGCdSet)
+anova(fitModel2ml,fitModel0ml)
+anova(fitModel3ml,fitModel0ml)
+```
+* *Comment:* a quadratic term dependent on the experimental group seems to improve the model. 
+
+* Now, let's check the residuals of our updated model.
+
+```{r}
+fitModel3 <- lme(TVlog ~ time + time2 + (time+time2):ExpGroup, 
+                         random= ~1+time|IDmouse,  
+                         method="REML", data = TGCdSet)
+TGCdSet$resid <- resid(fitModel3) # Raw residuals
+TGCdSet$fitted <- fitted(fitModel3) # Fitted values
+```
+
+* *Important note:*  
+  * remember that residuals should be <u>independent, normally distributed with mean zero and equal variance</u>. 
+    * We strongly recommend to check residuals behavior <u>by single and combined fixed and random effects</u>.
+    
+```{r}
+ggplot(data=TGCdSet, aes(x= fitted, y=resid), group=IDmouse) +
+  geom_point() + 
+  geom_hline(yintercept=0, linetype="dashed", color = "blue") +
+  labs(title = "Residuals by fitted value", x = "Fitted values", y = "Residuals")
+
+ggplot(data=TGCdSet, aes(x= time, y=resid), group=IDmouse) +
+  geom_point() + 
+  geom_hline(yintercept=0, linetype="dashed", color = "blue") +
+  labs(title = "Residuals by time", x = "Time", y = "Residuals") +
+  stat_summary(aes(y=resid, group=1), fun = mean, colour="red", geom="line", group=1)
+
+
+ggplot(data=TGCdSet, aes(x= time, y=resid), group=IDmouse) +
+  geom_point() + 
+  geom_hline(yintercept=0, linetype="dashed", color = "blue") +
+  labs(title = "Residuals by time and experimental group", x = "Time", y = "Residuals") +
+  stat_summary(aes(y=resid, group=1), fun = mean, colour="red", geom="line", group=1) + facet_grid(. ~ ExpGroup)
+
+bartlett.test(resid ~ ExpGroup, data = TGCdSet) # Bartlett’s homoscedasticity test
+
+
+ggplot(data=TGCdSet, aes(x= IDmouse, y=resid), group=IDmouse) +
+  geom_point() + 
+  geom_hline(yintercept=0, linetype="dashed", color = "blue") + 
+  labs(title = "Residuals by mouse", x = "Mouse", y = "Residuals") +
+  stat_summary(aes(y=resid), fun = mean, colour="red", geom="point", size=3)
+
+ggplot(data=TGCdSet, aes(x= IDmouse, y=resid), group=IDmouse) +
+  geom_point() + 
+  geom_hline(yintercept=0, linetype="dashed", color = "blue") + 
+  labs(title = "Residuals by mouse and time", x = "Mouse", y = "Residuals") +
+  stat_summary(aes(y=resid), fun = mean, colour="red", geom="point", size=3) + facet_grid(. ~ ExpGroup)
+```
+
+* *Comment:*
+  * based on the residuals behaviour we detected a dependence of the variance on experimental groups (e.g. carbo + gefinitib has a larger variability).
+  
+* We could solve the contradiction to the model's assumptions using a different variance for each experimental group. 
+
+```{r}
+### Checking a quadratic term for the time variable, overall and by experimental group
+fitModel3 <- lme(TVlog ~ time + time2 + (time+time2):ExpGroup, 
+                         random= ~1+time|IDmouse,  
+                         method="REML", data = TGCdSet)
+fitModel4 <- lme(TVlog ~ time + time2 + (time+time2):ExpGroup, 
+                         random= ~1+time|IDmouse, weights = varIdent(form = ~1|ExpGroup),
+                         method="REML", data = TGCdSet)
+anova(fitModel4,fitModel3)
+```
+
+* Random effects (i.e. intercept and slope by mouse) are normally distributed around zero (statistics and plots not shown). 
+* Based on residuals and random effects behaviour we consider the following model as "reference" (*gold standard*) model:
+
+```{r}
+fitModel <- lme(TVlog ~ time + time2 + (time+time2):ExpGroup, 
+                        random= ~1+time|IDmouse, weights = varIdent(form = ~1|ExpGroup), 
+                        method="REML", data = TGCdSet)
+```
+
+### Statistical inference
+
+* Let's answer to the primary objective (hypothesis testing) and secondary objective (estimation) of the experiment. First of all, look at the output of the model fitting:
+
+```{r}
+summary(fitModel)
+```
+
+* Let's prepare the matrix to specify the contrasts:
+
+```{r}
+mTest = matrix(0, nrow = 2, ncol = 9)
+# Synergy on the linear term
+mTest[1,4] <- -1
+mTest[1,5] <- -1
+mTest[1,6] <- 1
+# Synergy on the quadratic term
+mTest[2,7] <- -1
+mTest[2,8] <- -1
+mTest[2,9] <- 1
+mTest
+```
+
+* Let's perform the statistical test:
+```{r}
+anova(fitModel, L=mTest)
+# If ANOVA test with a F statistic (the gold standard test) could not be performed because the "between-" and "within-" variability is not clearly defined, you have other two options:
+# 1. LRT with maximum likelihood estimator.
+# 2. Wald test with a chi-square statistic:
+#    library(multcomp)
+#    glhtOutput <- glht(fitModel, linfct=mTest)
+#    summary(glhtOutput, test = Chisqtest()) # Wald test
+```
+
+* *Comment:* 
+* The interaction effect of 'carboplatin + gefitinib' group has been statistically detected. 
+* The interaction effect is related to the quadratic term of the time, not to the linear term of the time. <u>Try to prove this</u>!!! 
+
+* Now, we estimate *the mean tumour volume and its 95% CI* in the 'vehicle' group after 14 days.
+
+```{r}
+# Step n.1) parameters estimates are extracted from the model
+fixedEffects <- as.numeric(fixef(fitModel))
+
+# Step n.2) the point "vehicle group after 14 days" is identified by a design matrix
+designMatrix <- matrix(0,nrow = 1, ncol = 9)
+designMatrix[1,1] = 1
+designMatrix[1,2] = 14
+designMatrix[1,3] = 14^2
+
+# Step n.3) point estimates and variance are calculated on log scale
+pointEst = designMatrix %*% fixedEffects # point estimate on log scale
+mVarCov <- as.matrix(vcov(fitModel)) # variance-covariance matrix on log scale
+VarEst = designMatrix %*% mVarCov %*% t(designMatrix) # variance estimate on log scale
+
+# Step n.4) 95% CI are calculated on log scale
+low95CI = pointEst - sqrt(VarEst) * qnorm(0.975) # lower 95% CI in log scale
+upp95CI = pointEst + sqrt(VarEst) * qnorm(0.975) # upper 95% CI in log scale
+
+# Step n.5) point estimates and 95% CI are calculated on natural scale
+pointEst = exp(pointEst)
+low95CI = exp(low95CI)
+upp95CI = exp(upp95CI)
+
+c(pointEst,low95CI,upp95CI) # print
+```
+
+### Sensitivity analysis
+
+* **`Very important consideration`**: 
+  * "All models are wrong" <sup>1</sup> 
+  * "Truth is much too complicated to allow anything but approximations" <sup>2</sup>
+  * The "reference" model is certainly a *wrong model*. 
+  * We <u>must</u> confirm its results assessing alternative models.
+  
+For instance let's consider a model in which residuals of a mouse are not independent but correlated in consecutive time points:
+
+```{r}
+fitSens <- lme(TVlog ~ time + time2 + (time+time2):ExpGroup, 
+                        random= ~1+time|IDmouse, weights = varIdent(form = ~1|ExpGroup), correlation = corCAR1(form = ~time|IDmouse),
+                        method="REML", data = TGCdSet)
+summary(fitSens)
+```
+
+The LRT shows that this more complex model could be used instead of the "reference" model. 
+```{r}
+anova(fitSens,fitModel)
+```
+
+Let's perform again the primary statistical test on this alternative model:
+
+```{r}
+anova(fitSens, L=mTest)
+```
+
+* This alternative model confirms the results of the "reference" model. 
+* We prefer the "reference" model instead of this alternative model because it is simpler.
+* *Note*: the contrasts matrix of this model is the same of the "reference" model. <u>It is not enough</u>!!!!!
+* Ideally, every statistical model that could reasonably generate our data should be assessed. Broader is the sensitivity analysis we perform, larger is our confidence on the results of the "reference" statistical model.
+
+* *References*: 
+  * <sup>1</sup> George E.P.Box, Journal of the American Statistical Association, Vol.71,No.356.(Dec.,1976),pp.791-799 
+  * <sup>2</sup> John von Neumann, 1947
+
+# Section 3: Practicals
+
+### *(i) A factorial design: using genotype to estimate treatment effect*
+
+* A factorial design was used to to detect a treatment effect and its dependency on the genotype (WT vs KO). Mice were randomised at time 0 and last observations were collected after 15 days. Data are reported in the file `Exercise 1.csv`.
+The primary outcome is tumour volume (mm<sup>3</sup>).
+* Please, answer the following questions: 
+  1. define on which scale you prefer to analyse tumour volume. 
+  2. develop a "reference" linear mixed-effects model. 
+  3. detect the treatment effect and its dependency on the genotype (WT vs KO). 
+  4. estimate *population mean* of the control-wild type (Ctr-WT) group and its 95% CI 12 days after randomisation.
+  5. develop an alternative regression model to use in a sensitivity analysis. 
+
+### *(ii) A meta-analysis of four preclinical experiments* 
+
+* The experiment reported at point (i) was performed in other three laboratories. Raw data were pooled together to better estimate efficacy of the active treatment. Data are reported in file `Exercise 2.csv`. 
+* Please, answer the following questions: 
+  1. is treatment effect different between laboratories? 
+  2. could you detect and estimate a laboratory effect? 
+
+### *(iii) A novel immunotherapy compound at CRUK CI* 
+
+* A preclinical in vivo antitumor activity experiment was performed at Cancer Research UK Cambridge Institute. The activity of a novel immunotherapy compound was tested against a vehicle group. Tumour volume (mm<sup>3</sup>) was measured at 30, 60 and 120 days after randomisation. Data are reported in the file `Exercise 3.csv`. <br/>
+* Please, answer the following questions: 
+  1. develop a "reference" linear mixed-effects model. <br/>
+  2. test and estimate the treatment effect at 60 days after randomisation. <br/>
+  3. develop an alternative regression model to use in a sensitivity analysis. <br/>

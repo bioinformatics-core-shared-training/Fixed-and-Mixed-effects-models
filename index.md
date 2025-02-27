@@ -87,11 +87,13 @@ regression models in preclinical cancer research.
   + Tutorial [R Markdown](multiple_regression+.Rmd)
   
 - Linear mixed-effects models
-  + Slides PDF
+  + Slides [PDF](ppts/mixed_effets_models.pdf)
+  + Tutorial [HTML](mixed_effets_models.html)
+  + Tutorial [R Markdown](mixed_effets_models.Rmd)
   
 - Tumour growth curve analysis in R
-  + Tutorial HTML
-  + Tutorial R Markdown
+  + Tutorial [HTML](mixed_effets_models.html)
+  + Tutorial [R Markdown](mixed_effets_models.Rmd)
   
 ## Course data
 - Please Download [this zip file](Course_Data.zip) to have all the datasets and R files used in this course.
@@ -100,7 +102,7 @@ regression models in preclinical cancer research.
 - Laptop and installed R.
 - Please, install the following R packages before the course:
   + GLMsData
-  + ggplot2
+  + tidyverse
   + nlme
   + multcomp
   + lmtest
