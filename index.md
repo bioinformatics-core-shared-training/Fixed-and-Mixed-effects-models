@@ -88,8 +88,6 @@ regression models in preclinical cancer research.
   
 - Linear mixed-effects models
   + Slides [PDF](ppts/mixed_effets_models.pdf)
-  + Tutorial [HTML](mixed_effets_models.html)
-  + Tutorial [R Markdown](mixed_effets_models.Rmd)
   
 - Tumour growth curve analysis in R
   + Tutorial [HTML](mixed_effets_models.html)
